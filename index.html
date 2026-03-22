@@ -1,0 +1,385 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>40K Dice Roller - Mobile</title>
+    <link href="dice.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="dice.js"></script>
+    <style>
+        /* Mobile-specific styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-size: 16px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+
+        .input {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px 4px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        th {
+            font-weight: 600;
+            background-color: #f0f0f0;
+        }
+
+        input.stat {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        /* Labels avec checkbox en ligne */
+        .checkbox-label {
+            display: inline-flex !important;
+            align-items: center;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .modifiers {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #fafafa;
+        }
+
+        .modifiers p {
+            margin: 10px 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        button:active {
+            background-color: #0056b3;
+            transform: scale(0.98);
+        }
+
+        .output {
+            display: block;
+        }
+
+        .chart {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .chart canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 250px;
+        }
+
+        .chart p {
+            margin: 10px 0 0 0;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .description {
+            display: block;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .endnote {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            padding: 20px 10px;
+            line-height: 1.5;
+        }
+
+        /* Improve touch targets */
+        @media (max-width: 768px) {
+            input:not([type="checkbox"]), select, button {
+                -webkit-appearance: none;
+                appearance: none;
+            }
+
+            /* Agrandir les checkboxes sur mobile pour faciliter le touch */
+            input[type="checkbox"] {
+                width: 24px;
+                height: 24px;
+                margin-right: 10px;
+            }
+        }
+    </style>
+</head>
+<body onload="init_40k()">
+    <h1>40K Dice Roller Mobile</h1>
+
+    <div id="attack" class="input">
+        <h2>⚔️ Attack Stats</h2>
+        <table>
+            <tr>
+                <th>Models</th>
+                <th>Attacks</th>
+                <th>BS/WS</th>
+                <th>Strength</th>
+                <th>AP</th>
+                <th>Damage</th>
+            </tr>
+            <tr>
+                <td><input type="text" class="stat" id="models" value="1" inputmode="numeric"></td>
+                <td><input type="text" class="stat" id="attacks" inputmode="numeric"></td>
+                <td><input type="text" class="stat" id="bs" inputmode="numeric"></td>
+                <td><input type="text" class="stat" id="s" inputmode="numeric"></td>
+                <td><input type="text" class="stat" id="ap" inputmode="numeric"></td>
+                <td><input type="text" class="stat" id="d" value="1" inputmode="numeric"></td>
+            </tr>
+        </table>
+
+        <div class="modifiers">
+            <p>
+                <label>Hit Modifier</label>
+                <input type="text" id="hit_mod" inputmode="numeric" placeholder="Ex: 1, -2">
+            </p>
+            <p>
+                <label><input type="checkbox" id="hit_leth" value="1"> Lethal Hits</label>
+            </p>
+            <p>
+                <label>Sustained Hits</label>
+                <input type="text" id="hit_sus" inputmode="numeric" placeholder="Ex: 1, 2">
+            </p>
+            <p>
+                <label>Critical Hit</label>
+                <input type="text" id="hit_crit" inputmode="numeric" placeholder="Ex: 2, 4">
+            </p>
+            <p>
+                <label>Critical hit rolls:</label>
+                <select id="hit_of_6">
+                    <option value="">Have no other abilities</option>
+                    <option value="+mortal">Deal 1 mortal wound + regular damage</option>
+                    <option value="mortal">Deal damage as mortal wounds</option>
+                </select>
+            </p>
+            <p>
+                <label>Reroll:</label>
+                <select id="hit_reroll">
+                    <option value="">No hit rolls</option>
+                    <option value="1">Hit rolls of 1</option>
+                    <option value="fail">Failed hit rolls</option>
+                    <option value="noncrit">Non-critical hit rolls</option>
+                </select>
+            </p>
+        </div>
+
+        <div class="modifiers">
+            <p>
+                <label>Wound Modifier</label>
+                <input type="text" id="wound_mod" inputmode="numeric" placeholder="Ex: 1, -2">
+            </p>
+            <p>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="wound_dev" value="1"> 
+                    Devastating Wounds
+                </label>
+            </p>
+            <p>
+                <label>Critical Wound (Anti-X)</label>
+                <input type="text" id="wound_crit" inputmode="numeric" placeholder="Ex: 2, 4">
+            </p>
+            <p>
+                <label>Critical wound rolls:</label>
+                <select id="wound_of_6">
+                    <option value="">Have no other abilities</option>
+                    <option value="+mortal">Deal 1 mortal wound + regular damage</option>
+                </select>
+            </p>
+            <p>
+                <label>Reroll:</label>
+                <select id="wound_reroll">
+                    <option value="">No wound rolls</option>
+                    <option value="1">Wound rolls of 1</option>
+                    <option value="fail">Failed wound rolls</option>
+                    <option value="noncrit">Non-critical wound rolls</option>
+                </select>
+            </p>
+        </div>
+    </div>
+
+    <div id="defense" class="input">
+        <h2>🛡️ Defense Stats</h2>
+
+        <div style="margin-bottom: 15px;">
+            <label>Profil prédéfini :</label>
+            <select id="defense_profile" onchange="loadDefenseProfile(this.value)" style="font-weight: 600; background-color: #e8f4f8;">
+                <option value="">-- Sélectionner un profil --</option>
+                <option value="spacemarine">⚔️ Space Marine Tactique</option>
+                <option value="terminator">🛡️ Terminator</option>
+                <option value="custodes">👑 Custodes Guard</option>
+                <option value="ork_boy">🟢 Ork Boy</option>
+                <option value="guardsman">🎖️ Garde Impérial</option>
+                <option value="necron_warrior">💀 Necron Warrior</option>
+                <option value="tyranid_warrior">👾 Tyranid Warrior</option>
+            </select>
+        </div>
+
+        <table>
+            <tr>
+                <th>Toughness</th>
+                <th>Save</th>
+                <th>Invuln</th>
+                <th>Wounds</th>
+            </tr>
+            <tr>
+                <td><input type="text" class="stat" id="t" inputmode="numeric"></td>
+                <td><input type="text" class="stat" id="save" inputmode="numeric"></td>
+                <td><input type="text" class="stat" id="invulnerable" inputmode="numeric"></td>
+                <td><input type="text" class="stat" id="wounds" inputmode="numeric"></td>
+            </tr>
+        </table>
+
+        <div class="modifiers">
+            <p>
+                <label>Save Modifier</label>
+                <input type="text" id="save_mod" inputmode="numeric" placeholder="Ex: 1, -2">
+            </p>
+            <p>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="cover" value="1"> 
+                    Cover
+                </label>
+            </p>
+            <p>
+                <label>Reroll:</label>
+                <select id="save_reroll">
+                    <option value="">No save rolls</option>
+                    <option value="1">Any save rolls of 1</option>
+                    <option value="fail">Any failed save rolls</option>
+                    <option value="inv_1">Invulnerable save rolls of 1</option>
+                    <option value="inv_fail">Failed invulnerable saves</option>
+                </select>
+            </p>
+            <p>
+                <label>Feel No Pain</label>
+                <input type="text" id="fnp" inputmode="numeric" placeholder="Ex: 4, 6">
+            </p>
+        </div>
+    </div>
+
+    <button onclick="roll_40k()">🎲 Roll Dice</button>
+
+    <div class="output">
+        <div class="chart">
+            <canvas id="attack_chart"></canvas>
+            <p id="attack_text"></p>
+        </div>
+        <div class="chart">
+            <canvas id="hit_chart"></canvas>
+            <p id="hit_text"></p>
+        </div>
+        <div class="chart">
+            <canvas id="wound_chart"></canvas>
+            <p id="wound_text"></p>
+        </div>
+        <div class="chart">
+            <canvas id="unsaved_chart"></canvas>
+            <p id="unsaved_text"></p>
+        </div>
+        <div class="chart">
+            <canvas id="damage_chart"></canvas>
+            <p id="damage_text"></p>
+        </div>
+        <div class="chart">
+            <canvas id="killed_chart"></canvas>
+            <p id="killed_text"></p>
+        </div>
+    </div>
+
+    <div class="endnote">
+        40K Visual Dice Calculator (10th Ed) - Mobile Version<br>
+        Based on the original by Jonathan Polley<br>
+        <a href="mailto:40k@ghostlords.com">40k@ghostlords.com</a><br>
+        <br>
+        <a href="https://github.com/toadchild/40kdice" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: none;">
+            📦 GitHub Original Project
+        </a>
+    </div>
+</body>
+</html>

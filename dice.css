@@ -1,0 +1,51 @@
+.output {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.chart {
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.endnote {
+    clear: both;
+    font-size: 75%;
+    padding-top: 5em;
+    color: grey;
+}
+
+.description {
+    color: grey;
+    font-style: italic;
+}
+
+.attacker {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.defender {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.modifiers {
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.input {
+    margin: 5px;
+    padding-left: 5px;
+    border-left: 4px solid blue;
+}
+
+input.stat {
+    width: 5em;
+}
+
