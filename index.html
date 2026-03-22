@@ -96,6 +96,32 @@
             font-weight: 500;
         }
 
+        .stats-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .stat-field {
+            flex: 1 1 calc(33.333% - 10px);
+            min-width: 90px;
+        }
+
+        .stat-field.wide {
+            flex-grow: 1.35;
+        }
+
+        .stat-field.tight {
+            flex-grow: 0.85;
+        }
+
+        .stat-field label {
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
         /* Labels avec checkbox en ligne */
         .checkbox-label {
             display: inline-flex !important;
@@ -181,11 +207,29 @@
                 appearance: none;
             }
 
+            .stat-field {
+                flex-basis: calc(50% - 10px);
+            }
+
+            .stat-field.tight {
+                flex-grow: 1;
+            }
+
+            .stat-field label {
+                font-size: 0.85rem;
+            }
+
             /* Agrandir les checkboxes sur mobile pour faciliter le touch */
             input[type="checkbox"] {
                 width: 24px;
                 height: 24px;
                 margin-right: 10px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .stat-field {
+                min-width: 0;
             }
         }
     </style>
@@ -195,24 +239,32 @@
 
     <div id="attack" class="input">
         <h2>⚔️ Attack Stats</h2>
-        <table>
-            <tr>
-                <th>Models</th>
-                <th>Attacks</th>
-                <th>BS/WS</th>
-                <th>Strength</th>
-                <th>AP</th>
-                <th>Damage</th>
-            </tr>
-            <tr>
-                <td><input type="text" class="stat" id="models" value="1" inputmode="numeric"></td>
-                <td><input type="text" class="stat" id="attacks" inputmode="numeric"></td>
-                <td><input type="text" class="stat" id="bs" inputmode="numeric"></td>
-                <td><input type="text" class="stat" id="s" inputmode="numeric"></td>
-                <td><input type="text" class="stat" id="ap" inputmode="numeric"></td>
-                <td><input type="text" class="stat" id="d" value="1" inputmode="numeric"></td>
-            </tr>
-        </table>
+        <div class="stats-grid">
+            <div class="stat-field wide">
+                <label for="models">Models</label>
+                <input type="text" class="stat" id="models" value="1" inputmode="numeric">
+            </div>
+            <div class="stat-field wide">
+                <label for="attacks">Attacks</label>
+                <input type="text" class="stat" id="attacks" inputmode="numeric">
+            </div>
+            <div class="stat-field tight">
+                <label for="bs">BS/WS</label>
+                <input type="text" class="stat" id="bs" inputmode="numeric">
+            </div>
+            <div class="stat-field">
+                <label for="s">Strength</label>
+                <input type="text" class="stat" id="s" inputmode="numeric">
+            </div>
+            <div class="stat-field tight">
+                <label for="ap">AP</label>
+                <input type="text" class="stat" id="ap" inputmode="numeric">
+            </div>
+            <div class="stat-field tight">
+                <label for="d">Damage</label>
+                <input type="text" class="stat" id="d" value="1" inputmode="numeric">
+            </div>
+        </div>
 
         <div class="modifiers">
             <p>
@@ -300,20 +352,24 @@
             </select>
         </div>
 
-        <table>
-            <tr>
-                <th>Toughness</th>
-                <th>Save</th>
-                <th>Invuln</th>
-                <th>Wounds</th>
-            </tr>
-            <tr>
-                <td><input type="text" class="stat" id="t" inputmode="numeric"></td>
-                <td><input type="text" class="stat" id="save" inputmode="numeric"></td>
-                <td><input type="text" class="stat" id="invulnerable" inputmode="numeric"></td>
-                <td><input type="text" class="stat" id="wounds" inputmode="numeric"></td>
-            </tr>
-        </table>
+        <div class="stats-grid">
+            <div class="stat-field">
+                <label for="t">Toughness</label>
+                <input type="text" class="stat" id="t" inputmode="numeric">
+            </div>
+            <div class="stat-field">
+                <label for="save">Save</label>
+                <input type="text" class="stat" id="save" inputmode="numeric">
+            </div>
+            <div class="stat-field tight">
+                <label for="invulnerable">Invuln</label>
+                <input type="text" class="stat" id="invulnerable" inputmode="numeric">
+            </div>
+            <div class="stat-field">
+                <label for="wounds">Wounds</label>
+                <input type="text" class="stat" id="wounds" inputmode="numeric">
+            </div>
+        </div>
 
         <div class="modifiers">
             <p>
