@@ -21,6 +21,11 @@
             background-color: #f5f5f5;
         }
 
+        .page-container {
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+
         h1 {
             font-size: 1.5rem;
             margin: 10px 0;
@@ -38,6 +43,31 @@
             margin-bottom: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            margin: 12px 0 16px;
+        }
+
+        .top-actions button {
+            margin: 0;
+            width: auto;
+            padding: 12px 16px;
+            font-size: 1rem;
+        }
+
+        .top-actions .secondary {
+            background-color: #6c757d;
+        }
+
+        .top-actions .secondary:active {
+            background-color: #565e64;
+        }
+
+        .controls-grid {
+            display: block;
         }
 
         table {
@@ -200,6 +230,42 @@
             line-height: 1.5;
         }
 
+        @media (min-width: 992px) {
+            body {
+                padding: 18px;
+            }
+
+            .controls-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 14px;
+                align-items: start;
+            }
+
+            .controls-grid .input {
+                margin-bottom: 0;
+            }
+
+            .roll-button {
+                width: auto;
+                min-width: 220px;
+                margin: 16px auto 20px;
+                display: block;
+                padding: 14px 22px;
+            }
+
+            .output {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 14px;
+            }
+
+            .chart {
+                margin-bottom: 0;
+                min-height: 320px;
+            }
+        }
+
         /* Improve touch targets */
         @media (max-width: 768px) {
             input:not([type="checkbox"]), select, button {
@@ -235,171 +301,200 @@
     </style>
 </head>
 <body onload="init_40k()">
+    <div class="page-container">
     <h1>40K Dice Roller Mobile</h1>
 
-    <div id="attack" class="input">
-        <h2>⚔️ Attack Stats</h2>
-        <div class="stats-grid">
-            <div class="stat-field wide">
-                <label for="models">Models</label>
-                <input type="text" class="stat" id="models" value="1" inputmode="numeric">
+    <div class="top-actions">
+        <button type="button" class="secondary" onclick="reset_40k()">↺ Reset</button>
+    </div>
+
+    <div class="controls-grid">
+        <div id="attack" class="input">
+            <h2>⚔️ Attack Stats</h2>
+            <div class="stats-grid">
+                <div class="stat-field wide">
+                    <label for="models">Models</label>
+                    <input type="text" class="stat" id="models" value="1" inputmode="numeric">
+                </div>
+                <div class="stat-field wide">
+                    <label for="attacks">Attacks</label>
+                    <input type="text" class="stat" id="attacks" inputmode="text">
+                </div>
+                <div class="stat-field tight">
+                    <label for="bs">BS/WS</label>
+                    <input type="text" class="stat" id="bs" inputmode="numeric">
+                </div>
+                <div class="stat-field">
+                    <label for="s">Strength</label>
+                    <input type="text" class="stat" id="s" inputmode="numeric">
+                </div>
+                <div class="stat-field tight">
+                    <label for="ap">AP</label>
+                    <input type="text" class="stat" id="ap" inputmode="numeric">
+                </div>
+                <div class="stat-field tight">
+                    <label for="d">Damage</label>
+                    <input type="text" class="stat" id="d" value="1" inputmode="text">
+                </div>
             </div>
-            <div class="stat-field wide">
-                <label for="attacks">Attacks</label>
-                <input type="text" class="stat" id="attacks" inputmode="text">
+
+            <div class="modifiers">
+                <p>
+                    <label>Hit Modifier</label>
+                    <input type="text" id="hit_mod" inputmode="numeric" placeholder="Ex: 1, -2">
+                </p>
+                <p>
+                    <label><input type="checkbox" id="hit_leth" value="1"> Lethal Hits</label>
+                </p>
+                <p>
+                    <label>Sustained Hits</label>
+                    <input type="text" id="hit_sus" inputmode="text" placeholder="Ex: 1, D3">
+                </p>
+                <p>
+                    <label>Critical Hit</label>
+                    <input type="text" id="hit_crit" inputmode="numeric" placeholder="Ex: 2, 4">
+                </p>
+                <p>
+                    <label>Critical hit rolls:</label>
+                    <select id="hit_of_6">
+                        <option value="">Have no other abilities</option>
+                        <option value="+mortal">Deal 1 mortal wound + regular damage</option>
+                        <option value="mortal">Deal damage as mortal wounds</option>
+                    </select>
+                </p>
+                <p>
+                    <label>Reroll:</label>
+                    <select id="hit_reroll">
+                        <option value="">No hit rolls</option>
+                        <option value="1">Hit rolls of 1</option>
+                        <option value="fail">Failed hit rolls</option>
+                        <option value="noncrit">Non-critical hit rolls</option>
+                    </select>
+                </p>
             </div>
-            <div class="stat-field tight">
-                <label for="bs">BS/WS</label>
-                <input type="text" class="stat" id="bs" inputmode="numeric">
-            </div>
-            <div class="stat-field">
-                <label for="s">Strength</label>
-                <input type="text" class="stat" id="s" inputmode="numeric">
-            </div>
-            <div class="stat-field tight">
-                <label for="ap">AP</label>
-                <input type="text" class="stat" id="ap" inputmode="numeric">
-            </div>
-            <div class="stat-field tight">
-                <label for="d">Damage</label>
-                <input type="text" class="stat" id="d" value="1" inputmode="text">
+
+            <div class="modifiers">
+                <p>
+                    <label>Wound Modifier</label>
+                    <input type="text" id="wound_mod" inputmode="numeric" placeholder="Ex: 1, -2">
+                </p>
+                <p>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="wound_dev" value="1"> 
+                        Devastating Wounds
+                    </label>
+                </p>
+                <p>
+                    <label>Critical Wound (Anti-X)</label>
+                    <input type="text" id="wound_crit" inputmode="numeric" placeholder="Ex: 2, 4">
+                </p>
+                <p>
+                    <label>Critical wound rolls:</label>
+                    <select id="wound_of_6">
+                        <option value="">Have no other abilities</option>
+                        <option value="+mortal">Deal 1 mortal wound + regular damage</option>
+                    </select>
+                </p>
+                <p>
+                    <label>Reroll:</label>
+                    <select id="wound_reroll">
+                        <option value="">No wound rolls</option>
+                        <option value="1">Wound rolls of 1</option>
+                        <option value="fail">Failed wound rolls</option>
+                        <option value="noncrit">Non-critical wound rolls</option>
+                    </select>
+                </p>
             </div>
         </div>
 
-        <div class="modifiers">
-            <p>
-                <label>Hit Modifier</label>
-                <input type="text" id="hit_mod" inputmode="numeric" placeholder="Ex: 1, -2">
-            </p>
-            <p>
-                <label><input type="checkbox" id="hit_leth" value="1"> Lethal Hits</label>
-            </p>
-            <p>
-                <label>Sustained Hits</label>
-                <input type="text" id="hit_sus" inputmode="text" placeholder="Ex: 1, D3">
-            </p>
-            <p>
-                <label>Critical Hit</label>
-                <input type="text" id="hit_crit" inputmode="numeric" placeholder="Ex: 2, 4">
-            </p>
-            <p>
-                <label>Critical hit rolls:</label>
-                <select id="hit_of_6">
-                    <option value="">Have no other abilities</option>
-                    <option value="+mortal">Deal 1 mortal wound + regular damage</option>
-                    <option value="mortal">Deal damage as mortal wounds</option>
-                </select>
-            </p>
-            <p>
-                <label>Reroll:</label>
-                <select id="hit_reroll">
-                    <option value="">No hit rolls</option>
-                    <option value="1">Hit rolls of 1</option>
-                    <option value="fail">Failed hit rolls</option>
-                    <option value="noncrit">Non-critical hit rolls</option>
-                </select>
-            </p>
-        </div>
+        <div id="defense" class="input">
+            <h2>🛡️ Defense Stats</h2>
 
-        <div class="modifiers">
-            <p>
-                <label>Wound Modifier</label>
-                <input type="text" id="wound_mod" inputmode="numeric" placeholder="Ex: 1, -2">
-            </p>
-            <p>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="wound_dev" value="1"> 
-                    Devastating Wounds
-                </label>
-            </p>
-            <p>
-                <label>Critical Wound (Anti-X)</label>
-                <input type="text" id="wound_crit" inputmode="numeric" placeholder="Ex: 2, 4">
-            </p>
-            <p>
-                <label>Critical wound rolls:</label>
-                <select id="wound_of_6">
-                    <option value="">Have no other abilities</option>
-                    <option value="+mortal">Deal 1 mortal wound + regular damage</option>
+            <div style="margin-bottom: 15px;">
+                <label>Profil prédéfini :</label>
+                <select id="defense_profile" onchange="loadDefenseProfile(this.value)" style="font-weight: 600; background-color: #e8f4f8;">
+                    <option value="">-- Sélectionner un profil --</option>
+                    <optgroup label="Infanterie">
+                        <option value="spacemarine">⚔️ Space Marine Tactique</option>
+                        <option value="terminator">🛡️ Terminator</option>
+                        <option value="custodes">👑 Custodes Guard</option>
+                        <option value="ork_boy">🟢 Ork Boy</option>
+                        <option value="guardsman">🎖️ Garde Impérial</option>
+                        <option value="necron_warrior">💀 Necron Warrior</option>
+                        <option value="tyranid_warrior">👾 Tyranid Warrior</option>
+                        <option value="crisis_suit">🤖 Crisis Suit T'au</option>
+                        <option value="lion_primarch">🦁 Primarque (Lion El'Jonson)</option>
+                    </optgroup>
+                    <optgroup label="Monstre">
+                        <option value="ctan">🌌 C'tan</option>
+                        <option value="exocrine">🧬 Exocrine</option>
+                        <option value="tyrannofex">🦖 Tyrannofex</option>
+                        <option value="greater_daemon">🔥 Demon Majeur</option>
+                        <option value="nurgle_beast">🪰 Bete de Nurgle</option>
+                    </optgroup>
+                    <optgroup label="Véhicule">
+                        <option value="landraider">🚛 Land Raider</option>
+                        <option value="rhino">🚐 Rhino</option>
+                        <option value="riptide">🛡️ Riptide</option>
+                        <option value="falcon_eldar">🛸 Falcon Eldar</option>
+                        <option value="trukk_ork">🛻 Trukk Ork</option>
+                        <option value="leman_russ">🧱 Leman Russ</option>
+                        <option value="dreadnought">🦾 Dreadnought</option>
+                        <option value="chaos_knight_wardog">🐺 Chaos Knight Wardog</option>
+                        <option value="imperial_knight">⚜️ Gros Imperial Knight</option>
+                    </optgroup>
                 </select>
-            </p>
-            <p>
-                <label>Reroll:</label>
-                <select id="wound_reroll">
-                    <option value="">No wound rolls</option>
-                    <option value="1">Wound rolls of 1</option>
-                    <option value="fail">Failed wound rolls</option>
-                    <option value="noncrit">Non-critical wound rolls</option>
-                </select>
-            </p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-field">
+                    <label for="t">Toughness</label>
+                    <input type="text" class="stat" id="t" inputmode="numeric">
+                </div>
+                <div class="stat-field">
+                    <label for="save">Save</label>
+                    <input type="text" class="stat" id="save" inputmode="numeric">
+                </div>
+                <div class="stat-field tight">
+                    <label for="invulnerable">Invuln</label>
+                    <input type="text" class="stat" id="invulnerable" inputmode="numeric">
+                </div>
+                <div class="stat-field">
+                    <label for="wounds">Wounds</label>
+                    <input type="text" class="stat" id="wounds" inputmode="numeric">
+                </div>
+            </div>
+
+            <div class="modifiers">
+                <p>
+                    <label>Save Modifier</label>
+                    <input type="text" id="save_mod" inputmode="numeric" placeholder="Ex: 1, -2">
+                </p>
+                <p>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="cover" value="1"> 
+                        Cover
+                    </label>
+                </p>
+                <p>
+                    <label>Reroll:</label>
+                    <select id="save_reroll">
+                        <option value="">No save rolls</option>
+                        <option value="1">Any save rolls of 1</option>
+                        <option value="fail">Any failed save rolls</option>
+                        <option value="inv_1">Invulnerable save rolls of 1</option>
+                        <option value="inv_fail">Failed invulnerable saves</option>
+                    </select>
+                </p>
+                <p>
+                    <label>Feel No Pain</label>
+                    <input type="text" id="fnp" inputmode="numeric" placeholder="Ex: 4, 6">
+                </p>
+            </div>
         </div>
     </div>
 
-    <div id="defense" class="input">
-        <h2>🛡️ Defense Stats</h2>
-
-        <div style="margin-bottom: 15px;">
-            <label>Profil prédéfini :</label>
-            <select id="defense_profile" onchange="loadDefenseProfile(this.value)" style="font-weight: 600; background-color: #e8f4f8;">
-                <option value="">-- Sélectionner un profil --</option>
-                <option value="spacemarine">⚔️ Space Marine Tactique</option>
-                <option value="terminator">🛡️ Terminator</option>
-                <option value="custodes">👑 Custodes Guard</option>
-                <option value="ork_boy">🟢 Ork Boy</option>
-                <option value="guardsman">🎖️ Garde Impérial</option>
-                <option value="necron_warrior">💀 Necron Warrior</option>
-                <option value="tyranid_warrior">👾 Tyranid Warrior</option>
-            </select>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-field">
-                <label for="t">Toughness</label>
-                <input type="text" class="stat" id="t" inputmode="numeric">
-            </div>
-            <div class="stat-field">
-                <label for="save">Save</label>
-                <input type="text" class="stat" id="save" inputmode="numeric">
-            </div>
-            <div class="stat-field tight">
-                <label for="invulnerable">Invuln</label>
-                <input type="text" class="stat" id="invulnerable" inputmode="numeric">
-            </div>
-            <div class="stat-field">
-                <label for="wounds">Wounds</label>
-                <input type="text" class="stat" id="wounds" inputmode="numeric">
-            </div>
-        </div>
-
-        <div class="modifiers">
-            <p>
-                <label>Save Modifier</label>
-                <input type="text" id="save_mod" inputmode="numeric" placeholder="Ex: 1, -2">
-            </p>
-            <p>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="cover" value="1"> 
-                    Cover
-                </label>
-            </p>
-            <p>
-                <label>Reroll:</label>
-                <select id="save_reroll">
-                    <option value="">No save rolls</option>
-                    <option value="1">Any save rolls of 1</option>
-                    <option value="fail">Any failed save rolls</option>
-                    <option value="inv_1">Invulnerable save rolls of 1</option>
-                    <option value="inv_fail">Failed invulnerable saves</option>
-                </select>
-            </p>
-            <p>
-                <label>Feel No Pain</label>
-                <input type="text" id="fnp" inputmode="numeric" placeholder="Ex: 4, 6">
-            </p>
-        </div>
-    </div>
-
-    <button onclick="roll_40k()">🎲 Roll Dice</button>
+    <button class="roll-button" onclick="roll_40k()">🎲 Roll Dice</button>
 
     <div class="output">
         <div class="chart">
@@ -436,6 +531,7 @@
         <a href="https://github.com/toadchild/40kdice" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: none;">
             📦 GitHub Original Project
         </a>
+    </div>
     </div>
 </body>
 </html>
