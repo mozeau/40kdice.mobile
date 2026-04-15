@@ -10,7 +10,7 @@ var defenseProfiles = {
         fnp: ""
     },
     "spacemarine": {
-        name: "Space Marine Tactique",
+        name: "Space Marine",
         t: "4",
         save: "3",
         invulnerable: "",
@@ -28,7 +28,7 @@ var defenseProfiles = {
     "ork_boy": {
         name: "Ork Boy",
         t: "5",
-        save: "6",
+        save: "5",
         invulnerable: "",
         wounds: "1",
         fnp: ""
@@ -63,6 +63,134 @@ var defenseProfiles = {
         save: "2",
         invulnerable: "4",
         wounds: "3",
+        fnp: ""
+    },
+    "crisis_suit": {
+        name: "Crisis Battlesuits",
+        t: "5",
+        save: "3",
+        invulnerable: "",
+        wounds: "4",
+        fnp: ""
+    },
+    "lion_primarch": {
+        name: "Primarque (Lion El'Jonson)",
+        t: "9",
+        save: "2",
+        invulnerable: "3",
+        wounds: "10",
+        fnp: ""
+    },
+    "ctan": {
+        name: "C'tan",
+        t: "11",
+        save: "4",
+        invulnerable: "4",
+        wounds: "12",
+        fnp: "5"
+    },
+    "exocrine": {
+        name: "Exocrine",
+        t: "10",
+        save: "3",
+        invulnerable: "",
+        wounds: "14",
+        fnp: ""
+    },
+    "tyrannofex": {
+        name: "Tyrannofex",
+        t: "12",
+        save: "2",
+        invulnerable: "",
+        wounds: "16",
+        fnp: ""
+    },
+    "greater_daemon": {
+        name: "Demon Majeur",
+        t: "10",
+        save: "4",
+        invulnerable: "4",
+        wounds: "18",
+        fnp: ""
+    },
+    "nurgle_beast": {
+        name: "Bete de Nurgle",
+        t: "9",
+        save: "5",
+        invulnerable: "5",
+        wounds: "7",
+        fnp: "5"
+    },
+    "landraider": {
+        name: "Land Raider",
+        t: "12",
+        save: "2",
+        invulnerable: "",
+        wounds: "16",
+        fnp: ""
+    },
+    "rhino": {
+        name: "Rhino",
+        t: "9",
+        save: "3",
+        invulnerable: "",
+        wounds: "10",
+        fnp: ""
+    },
+    "falcon_eldar": {
+        name: "Falcon Eldar",
+        t: "9",
+        save: "3",
+        invulnerable: "5",
+        wounds: "12",
+        fnp: ""
+    },
+    "trukk_ork": {
+        name: "Trukk Ork",
+        t: "8",
+        save: "4",
+        invulnerable: "6",
+        wounds: "10",
+        fnp: ""
+    },
+    "leman_russ": {
+        name: "Leman Russ",
+        t: "11",
+        save: "2",
+        invulnerable: "",
+        wounds: "13",
+        fnp: ""
+    },
+    "dreadnought": {
+        name: "Dreadnought",
+        t: "10",
+        save: "2",
+        invulnerable: "",
+        wounds: "10",
+        fnp: ""
+    },
+    "chaos_knight_wardog": {
+        name: "CK Wardog",
+        t: "9",
+        save: "3",
+        invulnerable: "5",
+        wounds: "14",
+        fnp: ""
+    },
+    "imperial_knight": {
+        name: "Gros IK",
+        t: "11",
+        save: "3",
+        invulnerable: "5",
+        wounds: "26",
+        fnp: ""
+    },
+    "riptide": {
+        name: "Riptide",
+        t: "9",
+        save: "2",
+        invulnerable: "4",
+        wounds: "14",
         fnp: ""
     }
 };
@@ -1368,6 +1496,51 @@ function init_40k() {
             roll_40k();
         }
     }
+}
+
+function reset_40k() {
+    for (var i = 0; i < fields_40k.length; i++) {
+        document.getElementById(fields_40k[i]).value = '';
+    }
+
+    // Keep sensible defaults for these two fields.
+    document.getElementById('models').value = '1';
+    document.getElementById('d').value = '1';
+
+    for (var c = 0; c < checkboxes_40k.length; c++) {
+        document.getElementById(checkboxes_40k[c]).checked = false;
+    }
+
+    for (var s = 0; s < selects_40k.length; s++) {
+        document.getElementById(selects_40k[s]).value = '';
+    }
+
+    var defenseProfile = document.getElementById('defense_profile');
+    if (defenseProfile) {
+        defenseProfile.value = '';
+    }
+
+    var chartNames = ['attack', 'hit', 'wound', 'unsaved', 'damage', 'killed'];
+    for (var j = 0; j < chartNames.length; j++) {
+        var chart = charts[chartNames[j]];
+        if (!chart) {
+            continue;
+        }
+
+        chart.data.labels = [];
+        for (var d = 0; d < chart.data.datasets.length; d++) {
+            chart.data.datasets[d].data = [];
+        }
+        chart.options.plugins.title.text = '';
+        chart.update();
+
+        var text = document.getElementById(chartNames[j] + '_text');
+        if (text) {
+            text.innerHTML = '';
+        }
+    }
+
+    location.hash = '';
 }
 
 function generate_permalink_40k() {
