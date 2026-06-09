@@ -1,200 +1,4 @@
 
-// Profils de défense prédéfinis
-var defenseProfiles = {
-    "": {
-        name: "-- Sélectionner un profil --",
-        t: "",
-        save: "",
-        invulnerable: "",
-        wounds: "",
-        fnp: ""
-    },
-    "spacemarine": {
-        name: "Space Marine",
-        t: "4",
-        save: "3",
-        invulnerable: "",
-        wounds: "2",
-        fnp: ""
-    },
-    "terminator": {
-        name: "Terminator",
-        t: "5",
-        save: "2",
-        invulnerable: "4",
-        wounds: "3",
-        fnp: ""
-    },
-    "ork_boy": {
-        name: "Ork Boy",
-        t: "5",
-        save: "5",
-        invulnerable: "",
-        wounds: "1",
-        fnp: ""
-    },
-    "guardsman": {
-        name: "Garde Impérial",
-        t: "3",
-        save: "5",
-        invulnerable: "",
-        wounds: "1",
-        fnp: ""
-    },
-    "necron_warrior": {
-        name: "Necron Warrior",
-        t: "4",
-        save: "4",
-        invulnerable: "",
-        wounds: "1",
-        fnp: "5"
-    },
-    "tyranid_warrior": {
-        name: "Tyranid Warrior",
-        t: "5",
-        save: "4",
-        invulnerable: "",
-        wounds: "3",
-        fnp: ""
-    },
-    "custodes": {
-        name: "Custodes Guard",
-        t: "6",
-        save: "2",
-        invulnerable: "4",
-        wounds: "3",
-        fnp: ""
-    },
-    "crisis_suit": {
-        name: "Crisis Battlesuits",
-        t: "5",
-        save: "3",
-        invulnerable: "",
-        wounds: "4",
-        fnp: ""
-    },
-    "lion_primarch": {
-        name: "Primarque (Lion El'Jonson)",
-        t: "9",
-        save: "2",
-        invulnerable: "3",
-        wounds: "10",
-        fnp: ""
-    },
-    "ctan": {
-        name: "C'tan",
-        t: "11",
-        save: "4",
-        invulnerable: "4",
-        wounds: "12",
-        fnp: "5"
-    },
-    "exocrine": {
-        name: "Exocrine",
-        t: "10",
-        save: "3",
-        invulnerable: "",
-        wounds: "14",
-        fnp: ""
-    },
-    "tyrannofex": {
-        name: "Tyrannofex",
-        t: "12",
-        save: "2",
-        invulnerable: "",
-        wounds: "16",
-        fnp: ""
-    },
-    "greater_daemon": {
-        name: "Demon Majeur",
-        t: "10",
-        save: "4",
-        invulnerable: "4",
-        wounds: "18",
-        fnp: ""
-    },
-    "nurgle_beast": {
-        name: "Bete de Nurgle",
-        t: "9",
-        save: "5",
-        invulnerable: "5",
-        wounds: "7",
-        fnp: "5"
-    },
-    "landraider": {
-        name: "Land Raider",
-        t: "12",
-        save: "2",
-        invulnerable: "",
-        wounds: "16",
-        fnp: ""
-    },
-    "rhino": {
-        name: "Rhino",
-        t: "9",
-        save: "3",
-        invulnerable: "",
-        wounds: "10",
-        fnp: ""
-    },
-    "falcon_eldar": {
-        name: "Falcon Eldar",
-        t: "9",
-        save: "3",
-        invulnerable: "5",
-        wounds: "12",
-        fnp: ""
-    },
-    "trukk_ork": {
-        name: "Trukk Ork",
-        t: "8",
-        save: "4",
-        invulnerable: "6",
-        wounds: "10",
-        fnp: ""
-    },
-    "leman_russ": {
-        name: "Leman Russ",
-        t: "11",
-        save: "2",
-        invulnerable: "",
-        wounds: "13",
-        fnp: ""
-    },
-    "dreadnought": {
-        name: "Dreadnought",
-        t: "10",
-        save: "2",
-        invulnerable: "",
-        wounds: "10",
-        fnp: ""
-    },
-    "chaos_knight_wardog": {
-        name: "CK Wardog",
-        t: "9",
-        save: "3",
-        invulnerable: "5",
-        wounds: "14",
-        fnp: ""
-    },
-    "imperial_knight": {
-        name: "Gros IK",
-        t: "11",
-        save: "3",
-        invulnerable: "5",
-        wounds: "26",
-        fnp: ""
-    },
-    "riptide": {
-        name: "Riptide",
-        t: "9",
-        save: "2",
-        invulnerable: "4",
-        wounds: "14",
-        fnp: ""
-    }
-};
-
 // Fonction pour charger un profil de défense
 function loadDefenseProfile(profileKey) {
     if (!profileKey || !defenseProfiles[profileKey]) {
@@ -619,7 +423,7 @@ function do_wounds(wound_stat, wound_mod, wound_reroll, wound_prob, hits, wound_
     return wounds;
 }
 
-function do_saves(save_stat, invuln_stat, ap_val, save_mod, cover, cover_max, save_reroll, wound_abilities, wounds, wound_prob) {
+function do_saves(save_stat, invuln_stat, ap_val, save_mod, save_reroll, wound_abilities, wounds, wound_prob) {
     // Always treat AP as negative
     ap_val = -Math.abs(ap_val);
     if (isNaN(save_mod)) {
@@ -629,14 +433,6 @@ function do_saves(save_stat, invuln_stat, ap_val, save_mod, cover, cover_max, sa
         ap_val = 0;
     }
     var total_save_mod = save_mod + ap_val;
-
-    // in 40K, models with a 3+ or better save cannot claim cover against AP 0.
-    if (cover_max && save_stat <= cover_max && ap_val == 0) {
-        cover = false;
-    }
-    if (cover) {
-        total_save_mod++;
-    }
 
     // Save mod cannot be higher than +1.
     if (save_mod > 1) {
@@ -679,7 +475,7 @@ function do_saves(save_stat, invuln_stat, ap_val, save_mod, cover, cover_max, sa
         }
     }
 
-    // Invulnerable save; ignores AP and cover, but includes other modifiers.
+    // Invulnerable save; ignores AP, but includes other modifiers.
     var invuln_prob = {
         pass_chance: 0.0,
         fail_chance: 1.0,
@@ -883,6 +679,10 @@ function roll_40k() {
     graph(attacks, attack_title, 'attack');
 
     // Hits
+    if (cover) {
+        // New cover rule: impose -1 to hit instead of modifying saves/AP.
+        hit_mod -= 1;
+    }
     if (hit_mod < -1) {
         hit_mod = -1;
     }else if (hit_mod > 1) {
@@ -928,13 +728,27 @@ function roll_40k() {
     var wounds = do_wounds(wound_stat, wound_mod, wound_reroll, wound_prob, hits, wound_abilities, damage_prob);
 
     // Saves
-    var unsaved = do_saves(save_stat, invuln_stat, ap_val, save_mod, cover, 3, save_reroll, wound_abilities, wounds, wound_prob);
+    var unsaved = do_saves(save_stat, invuln_stat, ap_val, save_mod, save_reroll, wound_abilities, wounds, wound_prob);
 
     // Damage
     var damage = do_damage(damage_val, fnp, damage_prob, unsaved);
 
     // Models Killed
     var killed = do_killed_40k(damage_prob, fnp, unsaved, wound_val);
+
+    // Store state for deferred profile kills table
+    _last_roll_state = {
+        hits: hits,
+        s: s,
+        ap_val: isNaN(ap_val) ? 0 : ap_val,
+        damage_prob: damage_prob,
+        wound_crit: wound_crit,
+        wound_mod: wound_mod,
+        wound_reroll: wound_reroll,
+        hit_abilities: hit_abilities,
+        hit_prob: hit_prob
+    };
+    setTimeout(calc_and_render_profile_kills, 0);
 
     generate_permalink_40k();
 }
@@ -969,6 +783,10 @@ function roll_aos() {
     graph(attacks, attack_title, 'attack');
 
     // Hits
+    if (cover) {
+        // New cover rule: impose -1 to hit instead of modifying saves/AP.
+        hit_mod -= 1;
+    }
     if (hit_mod < -1) {
         hit_mod = -1;
     }else if (hit_mod > 1) {
@@ -1011,7 +829,7 @@ function roll_aos() {
     var wounds = do_wounds(wound_stat, wound_mod, wound_reroll, wound_prob, hits, wound_abilities, damage_prob);
 
     // Saves
-    var unsaved = do_saves(save_stat, null, rend_val, save_mod, cover, null, save_reroll, wound_abilities, wounds, wound_prob);
+    var unsaved = do_saves(save_stat, null, rend_val, save_mod, save_reroll, wound_abilities, wounds, wound_prob);
 
     // Damage
     var ward;
@@ -1541,6 +1359,14 @@ function reset_40k() {
     }
 
     location.hash = '';
+
+    _last_roll_state = null;
+    var profileSection = document.getElementById('profile-kills-section');
+    if (profileSection) {
+        profileSection.style.display = 'none';
+        var profileContent = document.getElementById('profile-kills-content');
+        if (profileContent) profileContent.innerHTML = '';
+    }
 }
 
 function generate_permalink_40k() {
@@ -1774,3 +1600,118 @@ const DATASET_CUMULATIVE_MORTAL = 4;
 
 var TEST_OVERRIDE = false;
 var DEBUG_ENABLED = false;
+
+// Multi-profile kills summary
+var _last_roll_state = null;
+
+function calc_expected_kills_fast(profile, state) {
+    var t      = parseInt(profile.t);
+    var save   = parseInt(profile.save);
+    var invuln = parseInt(profile.invulnerable);
+    var wounds = parseInt(profile.wounds);
+    var fnp    = parseInt(profile.fnp);
+
+    if (isNaN(t) || isNaN(wounds) || wounds <= 0) return null;
+    var s = state.s;
+    if (isNaN(s) || !s) return null;
+
+    // Wound threshold (S vs T)
+    var wound_stat;
+    if      (t >= s * 2) wound_stat = 6;
+    else if (t >  s)     wound_stat = 5;
+    else if (s >= t * 2) wound_stat = 2;
+    else if (s >  t)     wound_stat = 3;
+    else                  wound_stat = 4;
+
+    var wound_prob = calc_wound_prob(wound_stat, state.wound_crit, state.wound_mod, state.wound_reroll, state.hit_abilities, state.hit_prob);
+
+    // Best save (armor with AP, or invuln)
+    var ap = -Math.abs(state.ap_val || 0);
+    var save_fail = 1.0;
+    if (!isNaN(save)) {
+        var sp = success_chance(save, null, ap);
+        save_fail = sp.fail_chance;
+    }
+    if (!isNaN(invuln)) {
+        var ip = success_chance(invuln, null, 0);
+        if (ip.pass_chance > (1.0 - save_fail)) {
+            save_fail = ip.fail_chance;
+        }
+    }
+
+    // Expected damage per hit with FNP
+    var d_prob = state.damage_prob.slice();
+    d_prob = shake_damage(d_prob, isNaN(fnp) ? 0 : fnp);
+    var e_damage = expected_value(d_prob);
+
+    // E[kills] ≈ E[hits] × P(wound) × P(save fail) × kills_per_hit
+    // kills_per_hit = min(1, e_damage/wounds) : une touche tue au plus 1 modèle,
+    // les dégâts excédentaires sont perdus (pas de transfert en 40k 10e).
+    var kills_per_hit = Math.min(1.0, e_damage / wounds);
+    var e_hits        = expected_value(state.hits.normal);
+    var e_unsaved     = e_hits * wound_prob.pass_chance * save_fail;
+    var e_kills       = e_unsaved * kills_per_hit;
+    var e_total_dmg   = e_unsaved * e_damage;
+
+    return {
+        kills: Math.round(e_kills     * 100) / 100,
+        dmg:   Math.round(e_total_dmg * 100) / 100
+    };
+}
+
+function calc_and_render_profile_kills() {
+    if (!_last_roll_state) return;
+    var state = _last_roll_state;
+
+    var results = {};
+    for (var key in defenseProfiles) {
+        if (!key) continue;
+        results[key] = calc_expected_kills_fast(defenseProfiles[key], state);
+    }
+
+    render_profile_kills_table(results);
+}
+
+function render_profile_kills_table(results) {
+    var section = document.getElementById('profile-kills-section');
+    var content = document.getElementById('profile-kills-content');
+    if (!section || !content) return;
+
+    var html = '';
+    for (var g = 0; g < profileGroups.length; g++) {
+        var group = profileGroups[g];
+        html += '<div class="pkc-group"><h3 class="pkc-group-title">' + group.label + '</h3><div class="pkc-grid">';
+
+        for (var i = 0; i < group.keys.length; i++) {
+            var key     = group.keys[i];
+            var profile = defenseProfiles[key];
+            if (!profile) continue;
+            var result = results[key];
+            var kills  = result ? result.kills : null;
+            var dmg    = result ? result.dmg   : null;
+
+            var colorClass = 'pkc-none';
+            if      (kills === null) colorClass = 'pkc-na';
+            else if (kills >= 2)    colorClass = 'pkc-high';
+            else if (kills >= 0.75) colorClass = 'pkc-medium';
+            else if (kills >= 0.2)  colorClass = 'pkc-low';
+
+            var kills_text = kills === null ? '—' : kills.toFixed(2);
+            var dmg_text   = dmg   === null ? ''  : ' <span class="pkc-dmg">(' + dmg.toFixed(1) + ' dmg)</span>';
+            var inv_text   = profile.invulnerable ? '/++' + profile.invulnerable : '';
+            var fnp_text   = profile.fnp ? ' FNP' + profile.fnp + '+' : '';
+            var stats_text = 'T' + (profile.t || '?') + ' Sv' + (profile.save || '-') + inv_text + ' W' + (profile.wounds || '?') + fnp_text;
+
+            html += '<div class="pkc-card ' + colorClass + '">'
+                  +   '<div class="pkc-name">'      + profile.name               + '</div>'
+                  +   '<div class="pkc-stats">'     + stats_text                 + '</div>'
+                  +   '<div class="pkc-kills-val">' + kills_text + dmg_text      + '</div>'
+                  + '</div>';
+        }
+
+        html += '</div></div>';
+    }
+
+    content.innerHTML = html;
+    section.style.display = '';
+}

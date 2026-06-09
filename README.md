@@ -28,7 +28,7 @@ Le calculateur original est un excellent outil pour calculer les probabilités d
 - Rerolls (1s, fails, non-crits)
 - Feel No Pain
 - Invulnerable Saves
-- Cover
+- Cover (impose un malus de -1 pour toucher)
 
 ### Profils prédéfinis
 Le calculateur inclut des profils de défense pour :

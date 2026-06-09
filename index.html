@@ -6,6 +6,7 @@
     <title>40K Dice Roller - Mobile</title>
     <link href="dice.css" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="profiles.js"></script>
     <script type="text/javascript" src="dice.js"></script>
     <style>
         /* Mobile-specific styles */
@@ -298,6 +299,81 @@
                 min-width: 0;
             }
         }
+
+        /* Profile kills table */
+        .pkc-group-title {
+            font-size: 0.95rem;
+            color: #555;
+            margin: 14px 0 6px;
+            font-weight: 600;
+        }
+
+        .pkc-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .pkc-card {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #ccc;
+        }
+
+        .pkc-name {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.3;
+        }
+
+        .pkc-stats {
+            font-size: 0.68rem;
+            color: #999;
+            margin-top: 1px;
+        }
+
+        .pkc-kills-val {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .pkc-dmg {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: #888;
+            white-space: nowrap;
+        }
+
+        .pkc-high  { border-left-color: #28a745; }
+        .pkc-high  .pkc-kills-val { color: #28a745; }
+
+        .pkc-medium { border-left-color: #ffc107; }
+        .pkc-medium .pkc-kills-val { color: #b38600; }
+
+        .pkc-low   { border-left-color: #fd7e14; }
+        .pkc-low   .pkc-kills-val { color: #c85000; }
+
+        .pkc-none  { border-left-color: #dc3545; }
+        .pkc-none  .pkc-kills-val { color: #dc3545; }
+
+        .pkc-na    { border-left-color: #ccc; }
+        .pkc-na    .pkc-kills-val { color: #aaa; }
+
+        @media (min-width: 992px) {
+            .pkc-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        @media (max-width: 420px) {
+            .pkc-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
 </head>
 <body onload="init_40k()">
@@ -473,7 +549,7 @@
                 <p>
                     <label class="checkbox-label">
                         <input type="checkbox" id="cover" value="1"> 
-                        Cover
+                        Cover (-1 to hit)
                     </label>
                 </p>
                 <p>
@@ -521,6 +597,12 @@
             <canvas id="killed_chart"></canvas>
             <p id="killed_text"></p>
         </div>
+    </div>
+
+    <div id="profile-kills-section" style="display:none">
+        <h2 style="margin-top:20px;margin-bottom:4px;">💀 Tués estimés par profil</h2>
+        <p style="font-size:0.78rem;color:#888;margin:0 0 10px">Valeur attendue approximative — sans modificateur de sauvegarde défensif ni wounds mortelles critiques</p>
+        <div id="profile-kills-content"></div>
     </div>
 
     <div class="endnote">
