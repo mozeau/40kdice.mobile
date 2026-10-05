@@ -39,7 +39,7 @@ var defenseProfiles = {
     },
     "lion_primarch": {
         name: "Primarque (Lion El'Jonson)",
-        t: "9", save: "2", invulnerable: "3", wounds: "10", fnp: ""
+        t: "10", save: "2", invulnerable: "3", wounds: "16", fnp: ""
     },
 
     // ── Monstre ──────────────────────────────────────────────────────────────
