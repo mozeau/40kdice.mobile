@@ -7,15 +7,15 @@ var defenseProfiles = {
     // ── Infanterie ──────────────────────────────────────────────────────────
     "spacemarine": {
         name: "Space Marine",
-        t: "4", save: "3", invulnerable: "", wounds: "2", fnp: ""
+        t: "5", save: "3", invulnerable: "", wounds: "2", fnp: ""
     },
     "terminator": {
         name: "Terminator",
-        t: "5", save: "2", invulnerable: "4", wounds: "3", fnp: ""
+        t: "6", save: "2", invulnerable: "4", wounds: "3", fnp: ""
     },
     "custodes": {
         name: "Custodes Guard",
-        t: "6", save: "2", invulnerable: "4", wounds: "3", fnp: ""
+        t: "7", save: "2", invulnerable: "4", wounds: "5", fnp: ""
     },
     "ork_boy": {
         name: "Ork Boy",
@@ -100,11 +100,15 @@ var defenseProfiles = {
     "imperial_knight": {
         name: "Gros IK",
         t: "11", save: "3", invulnerable: "5", wounds: "26", fnp: ""
+    },
+    "defiler": {
+        name: "Defiler",
+        t: "11", save: "3", invulnerable: "5", wounds: "18", fnp: ""
     }
 };
 
 var profileGroups = [
     { label: "Infanterie", keys: ["spacemarine", "terminator", "custodes", "ork_boy", "guardsman", "necron_warrior", "tyranid_warrior", "crisis_suit", "lion_primarch"] },
     { label: "Monstre",    keys: ["ctan", "exocrine", "tyrannofex", "greater_daemon", "nurgle_beast"] },
-    { label: "Véhicule",   keys: ["landraider", "rhino", "riptide", "falcon_eldar", "trukk_ork", "leman_russ", "dreadnought", "chaos_knight_wardog", "imperial_knight"] }
+    { label: "Véhicule",   keys: ["landraider", "rhino", "riptide", "falcon_eldar", "trukk_ork", "leman_russ", "dreadnought", "chaos_knight_wardog", "imperial_knight", "defiler"] }
 ];
