@@ -355,7 +355,10 @@ function do_hits(hit_stat, hit_mod, hit_reroll, attacks, hit_abilities, damage_p
         hit_title += ', crits autowound';
     }
 
-    graph(hits, hit_title, 'hit');
+    // Number of critical hits: each attack crits independently.
+    var crit_hits = filter_prob_array(attacks, hit_prob.six_chance).normal;
+
+    graph(hits, hit_title, 'hit', crit_hits);
 
     return hits;
 }
@@ -404,6 +407,9 @@ function do_wounds(wound_stat, wound_mod, wound_reroll, wound_prob, hits, wound_
     var wounds = filter_prob_array(hits, wound_prob.pass_chance);
     log_prob_array('Wounds', wounds);
 
+    // Number of critical wounds (Lethal Hits auto-wounds are not critical).
+    var crit_wounds = filter_prob_array(hits, wound_prob.six_chance).normal;
+
     // Calculate odds of getting mortal wounds.
     // Is a set of probability arrays keyed on the number of wounds.
     // Probability of a six given that we wound.
@@ -418,7 +424,7 @@ function do_wounds(wound_stat, wound_mod, wound_reroll, wound_prob, hits, wound_
         log_prob_array('Mortal Wounds', wounds);
     }
 
-    graph(wounds, wound_title, 'wound');
+    graph(wounds, wound_title, 'wound', crit_wounds);
 
     return wounds;
 }
@@ -549,12 +555,26 @@ function do_saves(save_stat, invuln_stat, ap_val, save_mod, save_reroll, wound_a
     return unsaved;
 }
 
-function do_damage(damage_val, fnp, damage_prob, unsaved) {
+// Expected number of attacks that get through: failed saves plus
+// criticals converted to mortal wounds (which skip the save).
+function expected_attacks_through(attacks, hits, unsaved, hit_abilities, hit_prob, wound_abilities, wound_prob) {
+    var through = expected_value(unsaved.normal);
+    if (hit_abilities['mortal']) {
+        through += expected_value(attacks.normal) * hit_prob.six_chance;
+    }
+    if (wound_abilities['mortal']) {
+        through += expected_value(hits.normal) * wound_prob.six_chance;
+    }
+    return through;
+}
+
+function do_damage(damage_val, fnp, damage_prob, unsaved, attacks_through) {
     var damage_title = damage_val + ' damage';
     if (fnp) {
         damage_title += ' (shake on ' + fnp + '+)';
     }
 
+    var raw_damage_ev = expected_value(damage_prob);
     damage_prob = shake_damage(damage_prob, fnp);
 
     // Change of a mortal wound going through.
@@ -585,7 +605,18 @@ function do_damage(damage_val, fnp, damage_prob, unsaved) {
         }
     }
 
-    graph(damage, damage_title, 'damage');
+    var extra_text = '';
+    if (attacks_through) {
+        var avg_damage = expected_value(damage.normal) / attacks_through;
+        extra_text = (Math.round(attacks_through * 100) / 100.0) + ' attacks through, avg '
+            + (Math.round(avg_damage * 100) / 100.0) + ' dmg each';
+        if (fnp) {
+            extra_text += ' (' + (Math.round(raw_damage_ev * 100) / 100.0) + ' before FNP)';
+        }
+        extra_text = '<br><span class="chart-note">' + extra_text + '</span>';
+    }
+
+    graph(damage, damage_title, 'damage', null, extra_text);
     return damage;
 }
 
@@ -731,7 +762,8 @@ function roll_40k() {
     var unsaved = do_saves(save_stat, invuln_stat, ap_val, save_mod, save_reroll, wound_abilities, wounds, wound_prob);
 
     // Damage
-    var damage = do_damage(damage_val, fnp, damage_prob, unsaved);
+    var attacks_through = expected_attacks_through(attacks, hits, unsaved, hit_abilities, hit_prob, wound_abilities, wound_prob);
+    var damage = do_damage(damage_val, fnp, damage_prob, unsaved, attacks_through);
 
     // Models Killed
     var killed = do_killed_40k(damage_prob, fnp, unsaved, wound_val);
@@ -745,6 +777,7 @@ function roll_40k() {
         wound_crit: wound_crit,
         wound_mod: wound_mod,
         wound_reroll: wound_reroll,
+        wound_dev: wound_dev,
         hit_abilities: hit_abilities,
         hit_prob: hit_prob
     };
@@ -838,7 +871,8 @@ function roll_aos() {
     } else if (shake == '56') {
         ward = 5;
     }
-    var damage = do_damage(damage_val, ward, damage_prob, unsaved);
+    var attacks_through = expected_attacks_through(attacks, hits, unsaved, hit_abilities, hit_prob, wound_abilities, wound_prob);
+    var damage = do_damage(damage_val, ward, damage_prob, unsaved, attacks_through);
 
     // Models Killed
     var killed = do_killed_aos(damage, wound_val);
@@ -1163,7 +1197,9 @@ function expected_value(data) {
     return ev;
 }
 
-function graph(raw_data, title, chart_name) {
+// crit_data (optional): probability array of the number of critical rolls.
+// extra_text (optional): HTML appended to the expected value text.
+function graph(raw_data, title, chart_name, crit_data, extra_text) {
     // Don't graph in unit tests.
     if (TEST_OVERRIDE) {
         return;
@@ -1227,12 +1263,28 @@ function graph(raw_data, title, chart_name) {
         }
     }
 
+    // Turn critical count into percentage points
+    var has_crit = false;
+    var crit = [];
+    if (crit_data) {
+        for (var c = 0; c < crit_data.length; c++) {
+            crit[c] = Math.round((crit_data[c] || 0) * 1000) / 10.0;
+            if (c > 0 && crit[c]) {
+                has_crit = true;
+            }
+        }
+    }
+    if (!has_crit) {
+        crit = [];
+    }
+
     // Drop zeroes off the end
-    var max_length = Math.max(data.length, mortal.length);
-    while (max_length && (!data[max_length - 1] && !mortal[max_length - 1])) {
+    var max_length = Math.max(data.length, mortal.length, crit.length);
+    while (max_length && (!data[max_length - 1] && !mortal[max_length - 1] && !crit[max_length - 1])) {
         max_length--;
         data.length = max_length;
         mortal.length = max_length;
+        crit.length = max_length;
         labels.length = max_length;
         cumulative_data.length = max_length;
         cumulative_mortal_data.length = max_length;
@@ -1253,6 +1305,13 @@ function graph(raw_data, title, chart_name) {
     var ev = expected_value(raw_data.normal);
     ev = Math.round(ev * 100) / 100.0;
     text.innerHTML = 'Expected: ' + ev;
+    if (has_crit) {
+        var ev_crit = Math.round(expected_value(crit_data) * 100) / 100.0;
+        text.innerHTML += ' <span class="chart-note">(critical: ' + ev_crit + ')</span>';
+    }
+    if (extra_text) {
+        text.innerHTML += extra_text;
+    }
     var ev_points = [];
     ev_points.length = Math.floor(ev);
     ev_points.fill({x: 0, y: null});
@@ -1260,8 +1319,10 @@ function graph(raw_data, title, chart_name) {
     ev_points[ev_points.length] = {x:ev, y:0};
 
     chart.data.datasets[DATASET_PRIMARY].data = data;
-    chart.data.datasets[DATASET_PRIMARY].grouped = has_mortal;
+    chart.data.datasets[DATASET_PRIMARY].grouped = has_mortal || has_crit;
     chart.data.datasets[DATASET_MORTAL].grouped = has_mortal;
+    chart.data.datasets[DATASET_CRIT].grouped = has_crit;
+    chart.data.datasets[DATASET_CRIT].data = crit;
     if (has_mortal) {
         chart.data.datasets[DATASET_MORTAL].data = mortal;
         chart.data.datasets[DATASET_CUMULATIVE_MORTAL].data = cumulative_mortal_data;
@@ -1281,6 +1342,40 @@ function graph(raw_data, title, chart_name) {
 
 var charts = [];
 
+// Theme
+function toggle_theme() {
+    var dark = document.documentElement.classList.toggle('dark');
+    try {
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+    } catch (e) {}
+    apply_theme();
+}
+
+// Sync the toggle button and chart colors with the current theme.
+function apply_theme() {
+    var dark = document.documentElement.classList.contains('dark');
+    var text_color = dark ? '#ddd' : '#666';
+    var grid_color = dark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)';
+
+    var button = document.getElementById('theme_toggle');
+    if (button) {
+        button.innerHTML = dark ? '☀️ Light' : '🌙 Dark';
+    }
+
+    for (var name in charts) {
+        var chart = charts[name];
+        for (var s in chart.options.scales) {
+            var scale = chart.options.scales[s];
+            scale.ticks = scale.ticks || {};
+            scale.ticks.color = text_color;
+            scale.grid = scale.grid || {};
+            scale.grid.color = grid_color;
+        }
+        chart.options.plugins.title.color = text_color;
+        chart.update();
+    }
+}
+
 
 // 40K Init
 var fields_40k = ['models', 'attacks', 'bs', 'ap', 's', 'd', 't', 'save', 'hit_mod', 'hit_crit', 'wound_mod', 'save_mod', 'invulnerable', 'wounds', 'hit_sus', 'wound_crit', 'fnp'];
@@ -1293,6 +1388,7 @@ function init_40k() {
     charts['unsaved'] = init_chart('unsaved_chart', 'unsaved');
     charts['damage'] = init_chart('damage_chart', 'damage');
     charts['killed'] = init_chart('killed_chart', 'killed');
+    apply_theme();
 
     // Populate fields from the parameter string.
     var params = location.hash.substring(1);
@@ -1522,6 +1618,17 @@ function init_chart(chart_name, label) {
                     order: 0,
                     type: 'line',
                     cubicInterpolationMode: 'monotone'
+                }, {
+                    // DATASET_CRIT
+                    type: 'bar',
+                    label: '{n} critical: ',
+                    xAxisID: 'labels',
+                    borderColor: 'rgba(200, 150, 0, 1.0)',
+                    backgroundColor: 'rgba(230, 180, 0, 0.5)',
+                    borderWidth: 1,
+                    data: [],
+                    order: 3,
+                    grouped: false
                 }
             ]
         },
@@ -1597,6 +1704,7 @@ const DATASET_MORTAL = 1;
 const DATASET_EXPECTED = 2;
 const DATASET_CUMULATIVE = 3;
 const DATASET_CUMULATIVE_MORTAL = 4;
+const DATASET_CRIT = 5;
 
 var TEST_OVERRIDE = false;
 var DEBUG_ENABLED = false;
@@ -1648,8 +1756,11 @@ function calc_expected_kills_fast(profile, state) {
     // kills_per_hit = min(1, e_damage/wounds) : une touche tue au plus 1 modèle,
     // les dégâts excédentaires sont perdus (pas de transfert en 40k 10e).
     var kills_per_hit = Math.min(1.0, e_damage / wounds);
+    // Devastating Wounds : les blessures critiques ne permettent aucune sauvegarde.
+    // six_chance exclut déjà les blessures auto de Lethal Hits (non critiques).
+    var crit_wound_chance = state.wound_dev ? wound_prob.six_chance : 0;
     var e_hits        = expected_value(state.hits.normal);
-    var e_unsaved     = e_hits * wound_prob.pass_chance * save_fail;
+    var e_unsaved     = e_hits * (crit_wound_chance + (wound_prob.pass_chance - crit_wound_chance) * save_fail);
     var e_kills       = e_unsaved * kills_per_hit;
     var e_total_dmg   = e_unsaved * e_damage;
 

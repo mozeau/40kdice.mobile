@@ -8,6 +8,16 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="profiles.js"></script>
     <script type="text/javascript" src="dice.js"></script>
+    <script type="text/javascript">
+        // Apply the saved (or system) theme before rendering to avoid a flash.
+        (function() {
+            var theme = null;
+            try { theme = localStorage.getItem('theme'); } catch (e) {}
+            if (theme === 'dark' || (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
     <style>
         /* Mobile-specific styles */
         * {
@@ -216,6 +226,12 @@
             text-align: center;
         }
 
+        .chart-note {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: #8a6d1f;
+        }
+
         .description {
             display: block;
             font-size: 0.85rem;
@@ -374,6 +390,67 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
+        .profile-select {
+            font-weight: 600;
+            background-color: #e8f4f8;
+        }
+
+        /* Dark mode */
+        html.dark body {
+            background-color: #121212;
+            color: #e6e6e6;
+        }
+
+        html.dark .input,
+        html.dark .chart,
+        html.dark .pkc-card {
+            background-color: #1e1e1e;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        html.dark .modifiers {
+            background-color: #252525;
+            border-color: #3a3a3a;
+        }
+
+        html.dark th {
+            background-color: #2a2a2a;
+        }
+
+        html.dark input[type="text"],
+        html.dark input.stat,
+        html.dark select {
+            background-color: #2a2a2a;
+            color: #e6e6e6;
+            border-color: #444;
+        }
+
+        html.dark input::placeholder {
+            color: #888;
+        }
+
+        html.dark .profile-select {
+            background-color: #1d3340;
+        }
+
+        html.dark .chart-note {
+            color: #d4b05a;
+        }
+
+        html.dark .description,
+        html.dark .endnote,
+        html.dark .pkc-group-title {
+            color: #aaa;
+        }
+
+        html.dark .pkc-name {
+            color: #e6e6e6;
+        }
+
+        html.dark .endnote a {
+            color: #5aa9ff !important;
+        }
     </style>
 </head>
 <body onload="init_40k()">
@@ -382,6 +459,7 @@
 
     <div class="top-actions">
         <button type="button" class="secondary" onclick="reset_40k()">↺ Reset</button>
+        <button type="button" id="theme_toggle" class="secondary" onclick="toggle_theme()">🌙 Dark</button>
     </div>
 
     <div class="controls-grid">
@@ -488,7 +566,7 @@
 
             <div style="margin-bottom: 15px;">
                 <label>Profil prédéfini :</label>
-                <select id="defense_profile" onchange="loadDefenseProfile(this.value)" style="font-weight: 600; background-color: #e8f4f8;">
+                <select id="defense_profile" class="profile-select" onchange="loadDefenseProfile(this.value)">
                     <option value="">-- Sélectionner un profil --</option>
                     <optgroup label="Infanterie">
                         <option value="spacemarine">⚔️ Space Marine Tactique</option>
@@ -601,7 +679,7 @@
 
     <div id="profile-kills-section" style="display:none">
         <h2 style="margin-top:20px;margin-bottom:4px;">💀 Tués estimés par profil</h2>
-        <p style="font-size:0.78rem;color:#888;margin:0 0 10px">Valeur attendue approximative — sans modificateur de sauvegarde défensif ni wounds mortelles critiques</p>
+        <p style="font-size:0.78rem;color:#888;margin:0 0 10px">Valeur attendue approximative — sans modificateur ni relance de sauvegarde défensifs</p>
         <div id="profile-kills-content"></div>
     </div>
 
