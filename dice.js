@@ -1364,14 +1364,20 @@ function apply_theme() {
 
     for (var name in charts) {
         var chart = charts[name];
-        for (var s in chart.options.scales) {
-            var scale = chart.options.scales[s];
+        // Work on the raw config, not the resolved `chart.options` proxy:
+        // re-assigning proxied sub-objects (ticks/grid) recurses infinitely.
+        var options = chart.config.options;
+        options.scales = options.scales || {};
+        for (var s in options.scales) {
+            var scale = options.scales[s];
             scale.ticks = scale.ticks || {};
             scale.ticks.color = text_color;
             scale.grid = scale.grid || {};
             scale.grid.color = grid_color;
         }
-        chart.options.plugins.title.color = text_color;
+        options.plugins = options.plugins || {};
+        options.plugins.title = options.plugins.title || {};
+        options.plugins.title.color = text_color;
         chart.update();
     }
 }
